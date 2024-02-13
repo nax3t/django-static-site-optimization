@@ -6,6 +6,7 @@ from .forms import UploadForm
 from .utils import optimize_static_site
 import os
 import zipfile
+import shutil
 # Create your views here.
 def index(request):
     if request.method == 'POST':
@@ -32,12 +33,16 @@ def index(request):
                         arc_name = os.path.relpath(file_path, temp_dir)
                         zip_ref.write(file_path, arc_name)
             
-            # Provide feedback to the user
-            messages.success(request, 'Zip file processed successfully!')
-            with open(optimized_zip_path, 'rb') as f:
-                response = HttpResponse(f, content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename=optimized_static_site.zip'
-                return response
+            try:
+                # Provide feedback to the user
+                messages.success(request, 'Zip file processed successfully!')
+                with open(optimized_zip_path, 'rb') as f:
+                    response = HttpResponse(f, content_type='application/zip')
+                    response['Content-Disposition'] = 'attachment; filename=optimized_static_site.zip'
+                    return response
+            finally:
+                # Delete the extracted files
+                shutil.rmtree(temp_dir)
         else:
             messages.error(request, 'Invalid form submission.')
     else:
