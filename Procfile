@@ -1,1 +1,1 @@
-web: gunicorn static_site_optimizer.wsgi:application
+web: gunicorn static_site_optimizer.static_site_optimizer.wsgi:application
