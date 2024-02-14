@@ -1,19 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib import messages
 from django.conf import settings
 from .forms import UploadForm
-from .utils import optimize_static_site
 import os
 import zipfile
 import shutil
-import tempfile
 from bs4 import BeautifulSoup
 from cloudinary import config, uploader
 from pathlib import Path
 import logging
 import datetime
 import uuid
+import re
 
 def index(request):
     if request.method == 'POST':
@@ -46,8 +45,8 @@ def index(request):
                 # Recursively traverse temp directory for HTML and CSS files
                 for root, dirs, files in os.walk(temp_dir):
                     for file in files:
-                        if file.endswith(('.html')):
-                            file_path = os.path.join(root, file)
+                        file_path = os.path.join(root, file)
+                        if file.endswith('.html'):
                             with open(file_path, 'r+', encoding='utf-8') as f:
                                 contents = f.read()
                                 soup = BeautifulSoup(contents, 'html.parser')
@@ -58,13 +57,32 @@ def index(request):
                                     image_path = os.path.join(root, img['src'])
                                     if os.path.exists(image_path):
                                         response = uploader.upload(image_path, format="webp")
-                                        response['secure_url'] = response['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/w_auto/')
+                                        secure_url = response['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/w_auto/')
                                         img['src'] = response['secure_url']
 
                                 # Write the modified contents back to the file
                                 f.seek(0)
                                 f.write(str(soup))
                                 f.truncate()
+                        elif file.endswith('.css'):
+                            modified = False
+                            with open(file_path, 'r+', encoding='utf-8') as f:
+                                contents = f.read()
+                                style_pattern = r"background-image\s*:\s*url\(['\"]?(.*?)['\"]?\)"
+                                matches = re.findall(style_pattern, contents, re.IGNORECASE)
+                                for match in matches:
+                                    image_url = match.strip('\'"')
+                                    if not image_url.startswith("http"):
+                                        image_path = os.path.join(root, image_url)
+                                        response = uploader.upload(image_path, format="webp")
+                                        secure_url = response['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/w_auto/')
+                                        contents = contents.replace(match, secure_url)
+                                        modified = True
+                                if modified:
+                                    # Write the modified contents back to the file
+                                    f.seek(0)
+                                    f.write(contents)
+                                    f.truncate()
 
                 # Zip the modified directory
                 zip_path = os.path.join(temp_dir, "optimized.zip")
