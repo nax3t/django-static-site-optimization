@@ -8,7 +8,6 @@ import zipfile
 import shutil
 from bs4 import BeautifulSoup
 from cloudinary import config, uploader
-from pathlib import Path
 import logging
 import datetime
 import uuid
@@ -28,6 +27,7 @@ def index(request):
                 config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
             except Exception as e:
                 logging.error("Error configuring Cloudinary: %s", e)
+                return render(request, 'static/index.html', {'form': form, 'messages': ['Error configuring Cloudinary']})
 
             # Create a base directory for temporary files if it doesn't exist
             base_temp_dir = os.path.join(settings.BASE_DIR, 'tmp')
@@ -98,6 +98,9 @@ def index(request):
                     response = HttpResponse(f, content_type='application/zip')
                     response['Content-Disposition'] = 'attachment; filename="optimized.zip"'
                     return response
+            except Exception as e:
+                logging.error("Error optimizing images: %s", e)
+                return render(request, 'static/index.html', {'form': form, 'messages': ['Error optimizing images, please try again.']})
             finally:
                 shutil.rmtree(temp_dir)
     else:

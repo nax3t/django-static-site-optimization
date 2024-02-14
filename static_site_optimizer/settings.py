@@ -10,8 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from dotenv import load_dotenv
-load_dotenv()
+import os
+
+if os.environ.get('ENVIRONMENT') == 'development':
+    DEBUG = True
+    from dotenv import load_dotenv
+    load_dotenv()
+else:
+    DEBUG = False
+
 
 from pathlib import Path
 
