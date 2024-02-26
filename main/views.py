@@ -100,7 +100,7 @@ def index(request):
                     return response
             except Exception as e:
                 logging.error("Error optimizing images: %s", e)
-                return render(request, 'main/index.html', {'form': form, 'messages': ['Error optimizing images, please try again.']})
+                return render(request, 'main/index.html', {'form': form, 'messages': [f"Error optimizing images: {e}. Please try again."]})
             finally:
                 shutil.rmtree(temp_dir)
     else:

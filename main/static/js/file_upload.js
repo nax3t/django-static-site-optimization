@@ -1,21 +1,26 @@
+const ALLOWED_FILE_SIZE = 128;
 const fileInput = document.getElementById('zip-file');
-fileInput.addEventListener('change', updateDescription);
-function updateDescription() {
+fileInput.addEventListener('change', handleFileInputChange);
+function handleFileInputChange() {
     const selectedFile = fileInput.files[0];
     const descriptionSpan = document.getElementById('file-description');
     
-    // Check if a file is selected
     if (selectedFile) {
-        // Check if the file is a .zip file
         if (selectedFile.name.toLowerCase().endsWith('.zip')) {
+            const fileSizeMB = selectedFile.size / (1024 * 1024);
+            if (fileSizeMB > ALLOWED_FILE_SIZE) {
+                alert(`File size exceeds ${ALLOWED_FILE_SIZE}MB. Please select a smaller file.`);
+                fileInput.value = '';
+                descriptionSpan.textContent = '';
+                return;
+            }
             descriptionSpan.textContent = selectedFile.name;
         } else {
             alert('Please select a .zip file.');
-            fileInput.value = '';  // Clear the input field
+            fileInput.value = '';
             descriptionSpan.textContent = '';
         }
     } else {
-        // Clear the description if no file is selected
         descriptionSpan.textContent = '';
     }
 }
