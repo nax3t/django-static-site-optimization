@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 
 if os.environ.get('ENVIRONMENT') == 'development':
-    DEBUG = True
     from dotenv import load_dotenv
     load_dotenv()
+    DEBUG = os.environ.get('DEBUG')
 else:
     DEBUG = False
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'static.apps.StaticConfig',
+    'main.apps.MainConfig',
 ]
 
 MIDDLEWARE = [

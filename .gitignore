@@ -1,4 +1,5 @@
 .venv
+.venv-linux
 demo
 .env
 __pycache__/

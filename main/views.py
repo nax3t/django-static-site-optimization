@@ -27,7 +27,7 @@ def index(request):
                 config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
             except Exception as e:
                 logging.error("Error configuring Cloudinary: %s", e)
-                return render(request, 'static/index.html', {'form': form, 'messages': ['Error configuring Cloudinary']})
+                return render(request, 'main/index.html', {'form': form, 'messages': ['Error configuring Cloudinary']})
 
             # Create a base directory for temporary files if it doesn't exist
             base_temp_dir = os.path.join(settings.BASE_DIR, 'tmp')
@@ -100,11 +100,11 @@ def index(request):
                     return response
             except Exception as e:
                 logging.error("Error optimizing images: %s", e)
-                return render(request, 'static/index.html', {'form': form, 'messages': ['Error optimizing images, please try again.']})
+                return render(request, 'main/index.html', {'form': form, 'messages': ['Error optimizing images, please try again.']})
             finally:
                 shutil.rmtree(temp_dir)
     else:
         form = UploadForm()
 
-    return render(request, 'static/index.html', {'form': form})
+    return render(request, 'main/index.html', {'form': form})
 
