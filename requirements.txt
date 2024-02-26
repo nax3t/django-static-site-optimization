@@ -8,7 +8,6 @@ Django==4.2.10
 exceptiongroup==1.2.0
 executing==2.0.1
 gunicorn==21.2.0
-ipython==8.21.0
 jedi==0.19.1
 matplotlib-inline==0.1.6
 packaging==23.2
