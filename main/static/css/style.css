@@ -64,22 +64,6 @@ textarea {
     }
 }
 
-.btn-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: .25rem;
-    border: none;
-    background-color: transparent;
-
-    &:hover,
-    &:focus {
-        background-color: var(--c-action-primary-accent);
-    }
-}
-
 .modal-body {
     padding: 1rem 1.5rem;
 }
@@ -157,18 +141,19 @@ textarea {
     z-index: -1;
 }
 
-/* Flash message container */
-.messages {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+#messages {
+    background-color: #f8d7da;
+    border-radius: 5px;
+    padding: 10px;
 }
 
-/* Flash message item */
-.messages li {
-    background-color: #f8d7da; /* Red background color */
-    color: #721c24; /* Dark red text color */
-    padding: 10px 20px; /* Padding */
-    margin-bottom: 10px; /* Spacing between messages */
-    border-radius: 5px; /* Rounded corners */
+#messages ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#messages li {
+    color: #721c24;
+    margin: 0 0 10px 10px;
 }

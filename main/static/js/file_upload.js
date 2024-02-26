@@ -7,9 +7,16 @@ function handleFileInputChange() {
     
     if (selectedFile) {
         if (selectedFile.name.toLowerCase().endsWith('.zip')) {
-            const fileSizeMB = selectedFile.size / (1024 * 1024);
+            const fileSizeMB = selectedFile.size / (1000 * 1000);
             if (fileSizeMB > ALLOWED_FILE_SIZE) {
-                alert(`File size exceeds ${ALLOWED_FILE_SIZE}MB. Please select a smaller file.`);
+                document.getElementById('messages')?.remove();
+                document.querySelector('.modal-title').insertAdjacentHTML('afterend',`
+                    <div id="messages">
+                        <ul>
+                            <li>File size exceeds ${ALLOWED_FILE_SIZE}MB. Please select a smaller file.</li>
+                        </ul>
+                    </div>
+                `);
                 fileInput.value = '';
                 descriptionSpan.textContent = '';
                 return;

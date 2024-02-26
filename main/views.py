@@ -103,6 +103,9 @@ def index(request):
                 return render(request, 'main/index.html', {'form': form, 'messages': [f"Error optimizing images: {e}. Please try again."]})
             finally:
                 shutil.rmtree(temp_dir)
+        else:
+            logging.error("Error validating form: %s", form.errors)
+            return render(request, 'main/index.html', {'form': form, 'messages': [form.errors]})
     else:
         form = UploadForm()
 

@@ -32,15 +32,17 @@
         </div>
         <div class="modal-body">
           <h2 class="modal-title">Upload Static Site</h2>
-          <form method="post" enctype="multipart/form-data" class="upload-form">
-            {% csrf_token %}
-            {% if messages %}
-            <ul class="messages">
+          {% if messages %}
+          <div id="messages">
+            <ul>
                 {% for message in messages %}
                     <li>{{ message }}</li>
                 {% endfor %}
             </ul>
-            {% endif %}
+          </div>
+          {% endif %}
+          <form method="post" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
             <label class="upload-area">
               <span class="upload-area-icon">
                 <svg xmlns="http://www.w3.org/2000/svg"
