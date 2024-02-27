@@ -58,8 +58,7 @@ def index(request):
                                     if os.path.exists(image_path):
                                         response = uploader.upload(image_path, format="webp")
                                         secure_url = response['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/w_auto/')
-                                        img['src'] = response['secure_url']
-
+                                        img['src'] = secure_url
                                 # Write the modified contents back to the file
                                 f.seek(0)
                                 f.write(str(soup))
