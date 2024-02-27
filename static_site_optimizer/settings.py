@@ -12,12 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 
-if os.environ.get('ENVIRONMENT') == 'development':
-    from dotenv import load_dotenv
-    load_dotenv()
-    DEBUG = os.environ.get('DEBUG')
-else:
-    DEBUG = False
+
+DEBUG = os.environ.get('DEBUG')
+
 
 
 from pathlib import Path
