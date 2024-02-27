@@ -33,21 +33,25 @@ textarea {
 
 .modal {
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 10vh;
-    margin-bottom: 10vh;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
     background-color: #FFF;
     border-radius: .5rem;
-    box-shadow: 0 5px 15px rgba(#000, .2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
 }
 
 .modal-header {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
     padding: 1.5rem 1.5rem 1rem;
+}
+
+.modal-header * {
+    margin: .5rem 0;
 }
 
 .logo-circle {
@@ -70,6 +74,7 @@ textarea {
 
 .modal-title {
     font-weight: 700;
+    margin-top: 0px;
 }
 
 .modal-description {
@@ -156,4 +161,12 @@ textarea {
 #messages li {
     color: #721c24;
     margin: 0 0 10px 10px;
+}
+
+.mb-5 {
+    margin-bottom: 5px;
+}
+
+.grey-text {
+    color: var(--c-text-secondary);
 }

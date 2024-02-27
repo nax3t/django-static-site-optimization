@@ -11,11 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
-
-
-DEBUG = os.environ.get('DEBUG')
-
-
+if os.environ.get('ENVIRONMENT') != 'production':
+    from dotenv import load_dotenv
+    load_dotenv()
 
 from pathlib import Path
 
@@ -27,15 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-import os
-
-SECRET_KEY = os.environ["SECRET_KEY"]
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ["DEBUG"] or False
+DEBUG = os.environ.get("DEBUG") or False
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
