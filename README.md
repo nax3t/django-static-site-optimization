@@ -2,192 +2,93 @@
 
 ## Usage
 
-### Sign up for Cloudinary
-Visit [Cloudinary](https://cloudinary.com) and sign up for a free account. You can find your Cloudname, API Key, and API Secret in the Dashboard after logging in.
+Running an existing Django app locally involves similar steps across different operating systems but with some notable differences, especially when setting up the environment and dealing with system-specific commands. Below is a detailed guide.
 
-### Check if Python is installed
-To check if Python is installed on your system, open a terminal and run: `python --version`
+### Prerequisites
 
-If Python is installed, you should see the version number. If not, you'll need to install it.
+1. **Python**: Ensure you have Python installed. Django supports Python 3.6 and above.
+2. **pip**: This is Python's package installer. It usually comes with Python.
+3. **Virtual Environment**: Highly recommended for Python projects to manage dependencies.
 
-### Install Python if needed
-Follow the instructions for your operating system:
+### Windows vs. Mac/Linux Differences
 
-- **Windows**: Download the installer from [python.org](https://www.python.org/downloads/windows/) and run it.
-- **Mac**: Python comes pre-installed on Mac, but you can install the latest version using [Homebrew](https://brew.sh/) with `brew install python`.
-- **Linux**: Use your distribution's package manager, for example on Ubuntu use `sudo apt-get install python3`.
+- **Command Line Interface**: Windows uses Command Prompt or PowerShell, while Mac/Linux uses Terminal.
+- **Path Variables**: Sometimes, you may need to add Python or other executables to your system's PATH. The process differs between Windows and Mac/Linux.
+- **Commands**: Some commands differ slightly, e.g., activating a virtual environment.
 
-### Create Python Virtual Environment
-Creating a virtual environment is recommended to manage dependencies.
+### Steps to Set up and Run the App Locally
 
-- **Windows**:
-`python -m venv .venv`
-- **Mac/Linux**:
-`python3 -m venv .venv`
+#### 1. Clone the Repository
+First, clone the repository containing the Django project to your local machine. Use Git for this purpose.
 
-### Activate Virtual Environment
-Before running the script, you need to activate the virtual environment.
-
-- **Windows**:
-`.venv\Scripts\activate`
-- **Mac/Linux**:
-`source .venv/bin/activate`
-
-### Install Dependencies
-Install the required packages using pip: `pip install beautifulsoup4 cloudinary`
-
-### Create automation.py
-Create a file named `automation.py` in your project directory and add your script code to this file.
-
-```py
-import os
-import re
-import cloudinary
-from cloudinary import uploader
-from bs4 import BeautifulSoup
-
-def get_credentials():
-    """
-    Retrieves Cloudinary credentials from environment variables or user input.
-    """
-    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME") or input("Enter Cloudinary Cloud Name: ")
-    api_key = os.getenv("CLOUDINARY_API_KEY") or input("Enter Cloudinary API Key: ")
-    api_secret = os.getenv("CLOUDINARY_API_SECRET") or input("Enter Cloudinary API Secret: ")
-    return cloud_name, api_key, api_secret
-
-def configure_cloudinary(cloud_name, api_key, api_secret):
-    """
-    Configures Cloudinary with the provided credentials.
-    """
-    cloudinary.config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
-
-def upload_image(image_path):
-    """
-    Uploads an image to Cloudinary and returns its secure URL.
-    """
-    response = uploader.upload(image_path, format="webp")
-    secure_url = response.get('secure_url')
-    if secure_url:
-        secure_url = secure_url.replace('/upload/', '/upload/q_auto/w_auto/')
-    return secure_url
-
-def find_images(directory):
-    """
-    Recursively searches through a directory and its subdirectories for images,
-    uploading them to Cloudinary.
-    """
-    for filename in os.listdir(directory):
-        if "_copy" in filename:
-            continue
-        path = os.path.join(directory, filename)
-        if os.path.isfile(path):
-            process_file(path)
-        elif os.path.isdir(path):
-            find_images(path)
-
-def process_file(path):
-    """
-    Processes a single file, either HTML or CSS, and uploads images to Cloudinary.
-    """
-    if "_copy" in path:
-        return
-    if path.endswith(".html"):
-        process_html(path)
-    elif path.endswith(".css"):
-        process_css(path)
-
-def process_html(path):
-    """
-    Parses an HTML file, uploads images to Cloudinary, and replaces image URLs.
-    """
-    with open(path, "r") as file:
-        soup = BeautifulSoup(file, "html.parser")
-
-    modified = upload_and_replace_images(soup, "img", "src") or \
-               upload_and_replace_in_style(soup)
-
-    if modified:
-        save_file(soup, path, "_copy.html")
-
-def process_css(path):
-    """
-    Searches a CSS file for image URLs, uploads them to Cloudinary, and replaces URLs.
-    """
-    with open(path, "r") as file:
-        content = file.read()
-
-    modified = False
-    pattern = r"url\(['\"]?(.*?)['\"]?\)"
-    for match in re.findall(pattern, content):
-        image_path = match.strip('\'"')
-        if not image_path.startswith("http"):
-            secure_url = upload_image(image_path)
-            if secure_url:
-                content = content.replace(match, secure_url)
-                modified = True
-
-    if modified:
-        save_file(content, path, "_copy.css")
-
-def upload_and_replace_images(soup, tag_name, attribute):
-    """
-    Finds and replaces image URLs in the specified tag and attribute.
-    """
-    modified = False
-    for element in soup.find_all(tag_name):
-        image_url = element.get(attribute)
-        if image_url and not image_url.startswith("http"):
-            secure_url = upload_image(image_url)
-            if secure_url:
-                element[attribute] = secure_url
-                modified = True
-    return modified
-
-def upload_and_replace_in_style(soup):
-    """
-    Finds and replaces image URLs in inline styles.
-    """
-    modified = False
-    style_pattern = r"background-image\s*:\s*url\(['\"]?(.*?)['\"]?\)"
-    for element in soup.find_all(style=True):
-        style = element.get("style")
-        for match in re.findall(style_pattern, style, re.IGNORECASE):
-            image_url = match.strip('\'"')
-            if not image_url.startswith("http"):
-                secure_url = upload_image(image_url)
-                if secure_url:
-                    new_style = style.replace(match, secure_url)
-                    element['style'] = new_style
-                    modified = True
-    return modified
-
-def save_file(content, original_path, new_extension):
-    """
-    Saves the modified content to a new file, asking for confirmation if the file already exists.
-    """
-    new_path = original_path.rsplit('.', 1)[0] + new_extension
-    if os.path.exists(new_path):
-        confirm = input(f"The file {new_path} already exists. Do you want to overwrite it? (y/n): ")
-        if confirm.lower() != 'y':
-            print("Not overwriting the existing file.")
-            return
-    with open(new_path, "w") as file:
-        file.write(str(content))
-
-def main():
-    cloud_name, api_key, api_secret = get_credentials()
-    configure_cloudinary(cloud_name, api_key, api_secret)
-    print("Uploading images... Please wait.")
-    find_images(".")
-    print("Image upload complete.")
-
-if __name__ == "__main__":
-    main()
+```bash
+$ git clone https://github.com/nax3t/django-static-site-optimization.git
+$ cd django-static-site-optimization
 ```
 
-### Run Script
-To run the automation script, make sure your virtual environment is activated, then run the following command in your terminal: 
-- **Windows:** `python automation.py`
-- **Mac/Linux:** `python3 automation.py`
+#### 2. Set up a Virtual Environment
 
-This will make copies of your html and css files with a `_copy` suffix, once you have confirmed the changes you can rename the files to overwrite the originals. Please note, the html files will have lost their formatting, but this can easily be fixed with a formatter like Prettier.
+- **Windows**
+
+```bash
+$ python -m venv myenv
+$ myenv\Scripts\activate
+```
+
+- **Mac/Linux**
+
+```bash
+$ python3 -m venv myenv
+$ source myenv/bin/activate
+```
+
+#### 3. Install Dependencies
+
+Ensure you are in the project root (where `requirements.txt` is located) and run:
+
+```bash
+$ pip install -r requirements.txt
+```
+
+#### 4. Set environment variables
+
+DEBUG should be True in development, False in production.
+SECRET_KEY can be generated using the following command:
+```bash
+$ python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
+```
+
+You can rename the `example.env` file in the project root directory to be `.env` then set your environment variables there.
+
+#### 5. Run Migrations
+
+Apply the database migrations to set up your database schema:
+
+```bash
+$ python manage.py migrate
+```
+
+#### 6. Run the Development Server
+
+Finally, run the development server:
+
+```bash
+python manage.py runserver
+```
+
+Your Django app should now be accessible from `http://127.0.0.1:8000/` or `http://localhost:8000/`.
+
+#### 7. Sign up for Cloudinary
+Visit [Cloudinary](https://cloudinary.com) and sign up for a free account. You can find your Cloudname, API Key, and API Secret in the Dashboard after logging in.
+
+#### 8. Test the app
+
+- [Watch a video walkthrough](https://www.youtube.com/watch?v=v3DcFhCxoX8)
+- Get started by uploading a zip file of your static website. Be sure to include your [Cloudinary](https://www.cloudinary.com) credentials.
+
+#### Tips and Troubleshooting:
+
+- Ensure all the necessary environment variables are set
+- Check the Django app settings for any specified host or port changes.
+- Make sure your Python and pip are correctly installed and accessible via your terminal or command prompt.
+- Always activate your virtual environment before working on your project to isolate dependencies.
